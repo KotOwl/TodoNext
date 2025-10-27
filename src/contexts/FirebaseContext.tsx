@@ -11,7 +11,15 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { addDoc, collection, getDocs, Timestamp } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  getDocs,
+  query,
+  where,
+  orderBy,
+  Timestamp,
+} from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { IEventCreate, IEventRead } from "@/types/IEvents";
 
@@ -28,6 +36,10 @@ interface FirebaseContextType {
   resetPassword: (email: string) => Promise<void>;
   createEvent: (event: IEventCreate) => Promise<void>;
   getEvents: () => Promise<IEventRead[]>;
+  getEventsByDate?: (
+    startDate: string,
+    endDate: string
+  ) => Promise<IEventRead[]>;
 }
 
 const FirebaseContext = createContext<FirebaseContextType | undefined>(
@@ -110,48 +122,73 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
 
   // НЕ ПОТРІБЕН: import { Timestamp } from "firebase/firestore";
 
-const createEvent = async (event: IEventCreate) => {
-  try {
-    
-    const dataToSend = {
-      title: event.title,
-      description: event.description,
-      
-     
-      eventDate: event.date, 
-      eventTime: event.time, 
-      
-     
-      dateTimeISO: `${event.date}T${event.time}`
-    };
+  const createEvent = async (event: IEventCreate) => {
+    try {
+      const dataToSend = {
+        title: event.title,
+        description: event.description,
 
-    console.log("Відправка даних як рядків:", dataToSend);
+        eventDate: event.date,
+        eventTime: event.time,
 
-    await addDoc(collection(db, "events"), dataToSend);
+        dateTimeISO: `${event.date}T${event.time}`,
+      };
 
-    console.log("Подія успішно створена!");
+      console.log("Відправка даних як рядків:", dataToSend);
 
-  } catch (error) {
-    console.error("Error creating event:", error);
-    throw error;
-  }
-};
+      await addDoc(collection(db, "events"), dataToSend);
+
+      console.log("Подія успішно створена!");
+    } catch (error) {
+      console.error("Error creating event:", error);
+      throw error;
+    }
+  };
 
   const getEvents = async () => {
     try {
-      const events = await getDocs(collection(db, "events"));
-      
-      return events.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data()
-      } as IEventRead));
-      
+      const eventsQuery = query(
+        collection(db, "events"),
+        orderBy("dateTimeISO", "asc")
+      );
+      const events = await getDocs(eventsQuery);
+
+      return events.docs.map(
+        (doc) =>
+          ({
+            id: doc.id,
+            ...doc.data(),
+          } as IEventRead)
+      );
     } catch (error) {
       console.error("Error getting events:", error);
       throw error;
     }
   };
-  
+
+  const getEventsByDate = async (startDate: string, endDate: string) => {
+    try {
+      const eventsQuery = query(
+        collection(db, "events"),
+        where("dateTimeISO", ">=", startDate),
+        where("dateTimeISO", "<=", endDate),
+        orderBy("dateTimeISO", "asc")
+      );
+      const events = await getDocs(eventsQuery);
+
+      return events.docs.map(
+        (doc) =>
+          ({
+            id: doc.id,
+            ...doc.data(),
+          } as IEventRead)
+      );
+    } catch (error) {
+      console.error("Error getting events by date:", error);
+      throw error;
+    }
+  };
+
   const value: FirebaseContextType = {
     user,
     loading,
@@ -161,6 +198,7 @@ const createEvent = async (event: IEventCreate) => {
     resetPassword,
     createEvent,
     getEvents,
+    getEventsByDate,
   };
 
   return (
