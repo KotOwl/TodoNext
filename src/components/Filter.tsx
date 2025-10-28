@@ -13,9 +13,14 @@ import DataPicker from "./DataPicker";
 import NameFilter from "./NameFilter";
 import { EventType } from "@/types/IEvents";
 import TypeButtons from "./TypeButtons";
+import { useRouter } from "next/navigation";
 
 export default function Filter() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const router = useRouter()
+  const handleResetFilters = () => {
+    router.replace("/events");
+  }
   return (
     <div className="flex aitems-center w-full h-full gap-4">
       <Button
@@ -86,6 +91,14 @@ export default function Filter() {
                 </div>
               </DrawerBody>
               <DrawerFooter className="border-t border-purple-200 gap-2">
+                <Button
+                  color="danger"
+                  variant="light"
+                  onPress={handleResetFilters}
+                  className="border border-red-300"
+                >
+                  Reset Filters
+                </Button>
                 <Button
                   color="danger"
                   variant="light"

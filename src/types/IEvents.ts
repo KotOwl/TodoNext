@@ -46,3 +46,13 @@ export const EventTypeLabel = {
   [EventType.MEDIUM]: "Medium priority",
   [EventType.HIGH]: "High priority",
 } as const;
+
+export interface IUserInfo {
+    uid: string;
+    email: string | null;
+    displayName: string | null;
+    photoURL: string | null;
+    emailVerified: boolean;
+    createdAt: string | null;
+    lastSignIn: string | null;
+  }

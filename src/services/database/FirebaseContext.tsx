@@ -164,13 +164,13 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
 
       console.log("Building query with filters:", filters);
 
+      const statusFilter = filters?.status || "Active";
+
       let eventsQuery = query(
         collection(db, "events"),
-        where("userId", "==", user.uid)
+        where("userId", "==", user.uid),
+        where("status", "==", statusFilter)
       );
-
-      const statusFilter = filters?.status || "Active";
-      eventsQuery = query(eventsQuery, where("status", "==", statusFilter));
 
       if (filters) {
         if (filters.type) {
@@ -200,6 +200,9 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
           );
         }
       }
+
+      // Додаємо orderBy в кінці для використання індексу
+      eventsQuery = query(eventsQuery, orderBy("dateTimeISO", "asc"));
 
       console.log("Executing Firestore query...");
       const events = await getDocs(eventsQuery);

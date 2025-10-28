@@ -18,7 +18,7 @@ export default function NameFilter() {
       router.replace(`/events?${params.toString()}`, { scroll: false });
     }, 500);
     return () => clearTimeout(timer);
-  }, [router, searchTerm, searchParams]);
+  }, [router, searchTerm]);
 
   return (
     <div className="flex justify-center">
