@@ -9,7 +9,7 @@ function NewEventPage() {
   const { createEvent } = useFirebase();
   const router = useRouter();
   const onSubmit = async (data: IEventCreate) => {
-    await createEvent(data);
+    await createEvent({...data, status:'Active'});
     router.push("/events");
   };
   return (

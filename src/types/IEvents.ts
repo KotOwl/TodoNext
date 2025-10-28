@@ -3,9 +3,12 @@ import { Timestamp } from "firebase/firestore";
 export interface IEventCreate {
   title: string;
   description: string;
-  date: string;
+  eventDate: string;
+  date:string;
   time: string;
   type: EventType;
+  dateTimeISO: string;
+  status: "Active" | "Completed" | "Cancelled";
 }
 
 export interface IEventRead {
@@ -15,6 +18,7 @@ export interface IEventRead {
   eventDate: string;
   type: EventType;
   userId: string;
+  status: "Active" | "Completed" | "Cancelled";
 }
 
 export enum EventType {
@@ -30,11 +34,12 @@ export const EventTypeColor = {
 } as const;
 
 export interface EventFilters {
-    startDate?: string;
-    endDate?: string;
-    type?: string;
-    title?: string;
-  }
+  startDate?: string;
+  endDate?: string;
+  type?: string;
+  title?: string;
+  status?: "Active" | "Completed" | "Cancelled";
+}
 
 export const EventTypeLabel = {
   [EventType.LOW]: "Low priority",

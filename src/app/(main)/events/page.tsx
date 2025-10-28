@@ -13,17 +13,26 @@ function EventsPage() {
   const endDate = searchParams.get("endDate");
   const type = searchParams.get("type");
   const title = searchParams.get("title");
-  console.log(startDate, endDate, type, title);
+  console.log("URL params:", { startDate, endDate, type, title });
+
   useEffect(() => {
-    getEvents({
+    const filters = {
       startDate: startDate ? startDate : undefined,
       endDate: endDate ? endDate : undefined,
       type: type ? type : undefined,
       title: title ? title : undefined,
-    }).then((events) => {
-      setEvents(events);
-      console.log(events);
-    });
+    };
+
+    console.log("Calling getEvents with filters:", filters);
+
+    getEvents(filters)
+      .then((events) => {
+        console.log("Received events:", events);
+        setEvents(events);
+      })
+      .catch((error) => {
+        console.error("Error fetching events:", error);
+      });
   }, [getEvents, startDate, endDate, type, title]);
 
   return (
@@ -32,7 +41,7 @@ function EventsPage() {
         <Filter />
       </div>
 
-      <div className="ml-10grid flex w-full h-full items-center justify-center md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full max-w-7xl">
         {events.map((event) => (
           <EventCard key={event.id} event={event} />
         ))}

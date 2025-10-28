@@ -58,10 +58,7 @@ export default function Filter() {
                   </h3>
                   <div className="grid grid-cols-2 gap-2">
                     {Object.values(EventType).map((type: EventType) => (
-                      <TypeButtons
-                        key={type}
-                        type={type}
-                      />
+                      <TypeButtons key={type} type={type} />
                     ))}
                   </div>
                 </div>
