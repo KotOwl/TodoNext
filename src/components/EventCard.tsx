@@ -1,5 +1,5 @@
-import { IEventRead } from "@/types/IEvents";
-import { Card, CardBody, CardFooter, CardHeader } from "@heroui/card";
+import { EventTypeColor, EventTypeLabel, IEventRead } from "@/types/IEvents";
+import { Card, CardBody, CardFooter, CardHeader } from "@heroui/react";
 import { FC } from "react";
 
 type EventCardProps = {
@@ -17,6 +17,9 @@ const EventCard: FC<EventCardProps> = ({ event }) => {
       <CardBody className="py-2 max-w-75 justify-center items-center">
         <p className="font-semibold w-9/10 text-base text-purple-900 break-words whitespace-pre-wrap overflow-hidden">
           {event.description}
+        </p>
+        <p className={`text-sm self-end ${EventTypeColor[event.type]}`}>
+          {EventTypeLabel[event.type]}
         </p>
       </CardBody>
       <CardFooter className="text-xs flex justify-end w-full pe-3 border-t border-purple-100 pt-2 mt-2">

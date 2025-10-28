@@ -9,48 +9,84 @@ import {
   Button,
   useDisclosure,
 } from "@heroui/react";
+import DataPicker from "./DataPicker";
+import NameFilter from "./NameFilter";
+import { EventType } from "@/types/IEvents";
+import TypeButtons from "./TypeButtons";
 
 export default function Filter() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   return (
-    <div className="w-50px h-full">
+    <div className="flex aitems-center w-full h-full gap-4">
       <Button
-        className="bg-gradient-to-r from-violet-500 to-purple-600 text-white shadow-lg hover:shadow-xl transition-all"
+        className="bg-gradient-to-r rounded-full from-violet-500 to-purple-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
         size="md"
         onPress={onOpen}
         radius="full"
       >
-        Filter
+        🔍 Filter Events
       </Button>
-      <Drawer isOpen={isOpen} placement={"left"} className="w-full h-full" onOpenChange={onOpenChange}>
-        <DrawerContent className="bg-gradient-to-br from-purple-50 via-violet-50 to-fuchsia-50">
+      <Drawer
+        isOpen={isOpen}
+        placement={"left"}
+        className="absolute w-full h-full top-0 left-0 bg-purple-50"
+        onOpenChange={onOpenChange}
+      >
+        <DrawerContent>
           {(onClose) => (
             <>
-              <DrawerHeader className="flex flex-col gap-1 border-b border-purple-200">
-                <h2 className="text-2xl font-bold text-purple-900">
-                  Filter Events
+              <DrawerHeader className="flex flex-col gap-4">
+                <h2 className="text-xl font-bold text-purple-800">
+                  Event Filters
                 </h2>
-                <p className="text-sm text-purple-600">Choose your filters</p>
+                <DataPicker />
+                <p className="text-sm text-purple-600">
+                  Choose dates and other parameters
+                </p>
               </DrawerHeader>
-              <DrawerBody className="p-6">
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Nullam pulvinar risus non risus hendrerit venenatis.
-                  Pellentesque sit amet hendrerit risus, sed porttitor quam.
-                </p>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Nullam pulvinar risus non risus hendrerit venenatis.
-                  Pellentesque sit amet hendrerit risus, sed porttitor quam.
-                </p>
-                <p>
-                  Magna exercitation reprehenderit magna aute tempor cupidatat
-                  consequat elit dolor adipisicing. Mollit dolor eiusmod sunt ex
-                  incididunt cillum quis. Velit duis sit officia eiusmod Lorem
-                  aliqua enim laboris do dolor eiusmod. Et mollit incididunt
-                  nisi consectetur esse laborum eiusmod pariatur proident Lorem
-                  eiusmod et. Culpa deserunt nostrud ad veniam.
-                </p>
+              <DrawerBody className="p-6 space-y-6">
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-purple-700">
+                    Search by Name
+                  </h3>
+                  <NameFilter />
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-purple-700">
+                    Event Type
+                  </h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    {Object.values(EventType).map((type: EventType) => (
+                      <TypeButtons
+                        key={type}
+                        type={type}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-purple-700">
+                    Status
+                  </h3>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="bordered"
+                      className="border-purple-300 text-purple-600"
+                    >
+                      Active
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="bordered"
+                      className="border-purple-300 text-purple-600"
+                    >
+                      Completed
+                    </Button>
+                  </div>
+                </div>
               </DrawerBody>
               <DrawerFooter className="border-t border-purple-200 gap-2">
                 <Button

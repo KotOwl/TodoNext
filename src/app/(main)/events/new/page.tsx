@@ -1,8 +1,8 @@
 "use client";
 import { useForm } from "react-hook-form";
-import { useFirebase } from "@/contexts/FirebaseContext";
+import { useFirebase } from "@/services/database/FirebaseContext";
 import { useRouter } from "next/navigation";
-import { IEventCreate } from "@/types/IEvents";
+import { EventType, EventTypeLabel, IEventCreate } from "@/types/IEvents";
 
 function NewEventPage() {
   const { register, handleSubmit } = useForm<IEventCreate>();
@@ -40,6 +40,21 @@ function NewEventPage() {
               rows={4}
               className="w-full p-4 rounded-xl border-2 border-purple-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all outline-none bg-white text-purple-900 placeholder:text-purple-400 resize-none"
             />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-purple-800 mb-2">
+              Type
+            </label>
+            <select
+              {...register("type")}
+              className="w-full p-4 rounded-xl border-2 border-purple-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all outline-none bg-white text-purple-900"
+            >
+              {Object.values(EventType).map((type) => (
+                <option key={type} value={type}>
+                  {EventTypeLabel[type]}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>

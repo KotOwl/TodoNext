@@ -22,6 +22,7 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { IEventCreate, IEventRead } from "@/types/IEvents";
+import { EventFilters } from "@/types/IEvents";
 
 interface FirebaseContextType {
   user: User | null;
@@ -35,11 +36,12 @@ interface FirebaseContextType {
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   createEvent: (event: IEventCreate) => Promise<void>;
-  getEvents: () => Promise<IEventRead[]>;
+  getEvents: (filters?: EventFilters) => Promise<IEventRead[]>;
   getEventsByDate?: (
     startDate: string,
     endDate: string
   ) => Promise<IEventRead[]>;
+  getEventsByType?: (type: string) => Promise<IEventRead[]>;
 }
 
 const FirebaseContext = createContext<FirebaseContextType | undefined>(
@@ -120,17 +122,20 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
     }
   };
 
-  // НЕ ПОТРІБЕН: import { Timestamp } from "firebase/firestore";
 
   const createEvent = async (event: IEventCreate) => {
     try {
+      if (!user) {
+        throw new Error("User must be authenticated to create events");
+      }
+
       const dataToSend = {
         title: event.title,
         description: event.description,
-
         eventDate: event.date,
         eventTime: event.time,
-
+        type: event.type,
+        userId: user.uid,
         dateTimeISO: `${event.date}T${event.time}`,
       };
 
@@ -145,12 +150,44 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
     }
   };
 
-  const getEvents = async () => {
+  const getEvents = async (filters?: EventFilters) => {
     try {
-      const eventsQuery = query(
+      if (!user) {
+        return [];
+      }
+
+      let eventsQuery = query(
         collection(db, "events"),
-        orderBy("dateTimeISO", "asc")
+        where("userId", "==", user.uid)
       );
+
+      if (filters) {
+        if (filters.startDate) {
+          eventsQuery = query(
+            eventsQuery,
+            where("dateTimeISO", ">=", filters.startDate)
+          );
+        }
+        if (filters.endDate) {
+          eventsQuery = query(
+            eventsQuery,
+            where("dateTimeISO", "<=", filters.endDate)
+          );
+        }
+        if (filters.type) {
+          eventsQuery = query(eventsQuery, where("type", "==", filters.type));
+        }
+        if (filters.title) {
+          eventsQuery = query(
+            eventsQuery,
+            where("title", ">=", filters.title),
+            where("title", "<=", filters.title + "\uf8ff")
+          );
+        }
+      }
+
+      eventsQuery = query(eventsQuery, orderBy("dateTimeISO", "asc"));
+
       const events = await getDocs(eventsQuery);
 
       return events.docs.map(
@@ -168,8 +205,13 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
 
   const getEventsByDate = async (startDate: string, endDate: string) => {
     try {
+      if (!user) {
+        return [];
+      }
+
       const eventsQuery = query(
         collection(db, "events"),
+        where("userId", "==", user.uid),
         where("dateTimeISO", ">=", startDate),
         where("dateTimeISO", "<=", endDate),
         orderBy("dateTimeISO", "asc")
@@ -189,6 +231,33 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
     }
   };
 
+  const getEventsByType = async (type: string) => {
+    try {
+      if (!user) {
+        return [];
+      }
+
+      const eventsQuery = query(
+        collection(db, "events"),
+        where("userId", "==", user.uid),
+        where("type", "==", type),
+        orderBy("dateTimeISO", "asc")
+      );
+      const events = await getDocs(eventsQuery);
+
+      return events.docs.map(
+        (doc) =>
+          ({
+            id: doc.id,
+            ...doc.data(),
+          } as IEventRead)
+      );
+    } catch (error) {
+      console.error("Error getting events by type:", error);
+      throw error;
+    }
+  };
+
   const value: FirebaseContextType = {
     user,
     loading,
@@ -199,6 +268,7 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
     createEvent,
     getEvents,
     getEventsByDate,
+    getEventsByType,
   };
 
   return (
