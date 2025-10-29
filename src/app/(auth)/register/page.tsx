@@ -2,6 +2,8 @@
 import { useForm } from "react-hook-form";
 import { useFirebase } from "@/services/database/FirebaseContext";
 import { useRouter } from "next/navigation";
+import { Button } from "@heroui/react";
+import { useState } from "react";
 type FormData = {
   email: string;
   password: string;
@@ -10,11 +12,44 @@ type FormData = {
 
 export default function RegisterPage() {
   const { register, handleSubmit } = useForm<FormData>();
-  const { signUp } = useFirebase();
+  const { signUp, signInWithGoogle, signInWithGitHub } = useFirebase();
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+
   const onSubmit = async (data: FormData) => {
-    await signUp(data.email, data.password, data.displayName);
-    router.push("/events");
+    setIsLoading(true);
+    try {
+      await signUp(data.email, data.password, data.displayName);
+      router.push("/events");
+    } catch (error) {
+      console.error("Registration error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true);
+    try {
+      await signInWithGoogle();
+      router.push("/events");
+    } catch (error) {
+      console.error("Google sign in error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGitHubSignIn = async () => {
+    setIsLoading(true);
+    try {
+      await signInWithGitHub();
+      router.push("/events");
+    } catch (error) {
+      console.error("GitHub sign in error:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -62,11 +97,41 @@ export default function RegisterPage() {
           </div>
           <button
             type="submit"
-            className="mt-4 p-4 rounded-xl bg-gradient-to-r from-violet-500 to-purple-600 text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+            disabled={isLoading}
+            className="mt-4 p-4 rounded-xl bg-gradient-to-r from-violet-500 to-purple-600 text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Register
+            {isLoading ? "Loading..." : "Register"}
           </button>
         </form>
+
+        <div className="mt-6">
+          <div className="relative flex items-center">
+            <div className="flex-grow border-t border-purple-300"></div>
+            <span className="flex-shrink mx-4 text-purple-600 text-sm">or</span>
+            <div className="flex-grow border-t border-purple-300"></div>
+          </div>
+
+          <div className="mt-4 space-y-3">
+            <Button
+              fullWidth
+              onPress={handleGoogleSignIn}
+              disabled={isLoading}
+              className="bg-white text-gray-700 border-2 border-purple-200 hover:bg-purple-50 font-semibold"
+            >
+              Continue with Google
+            </Button>
+
+            <Button
+              fullWidth
+              onPress={handleGitHubSignIn}
+              disabled={isLoading}
+              className="bg-gray-900 text-white hover:bg-gray-800 font-semibold"
+            >
+              Continue with GitHub
+            </Button>
+          </div>
+        </div>
+
         <div className="mt-6 text-center">
           <p className="text-purple-600">
             Already have an account?{" "}

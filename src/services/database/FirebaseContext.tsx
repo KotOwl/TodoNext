@@ -8,6 +8,9 @@ import {
   createUserWithEmailAndPassword,
   signOut,
   updateProfile,
+  signInWithPopup,
+  GoogleAuthProvider,
+  GithubAuthProvider,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import {
@@ -33,6 +36,8 @@ interface FirebaseContextType {
     password: string,
     displayName?: string
   ) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
+  signInWithGitHub: () => Promise<void>;
   logout: () => Promise<void>;
   isAuthenticated: () => boolean;
   requireAuth: () => void;
@@ -106,6 +111,26 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
       }
     } catch (error) {
       console.error("Error signing up:", error);
+      throw error;
+    }
+  };
+
+  const signInWithGoogle = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      console.error("Error signing in with Google:", error);
+      throw error;
+    }
+  };
+
+  const signInWithGitHub = async () => {
+    try {
+      const provider = new GithubAuthProvider();
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      console.error("Error signing in with GitHub:", error);
       throw error;
     }
   };
@@ -343,6 +368,8 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
     loading,
     signIn,
     signUp,
+    signInWithGoogle,
+    signInWithGitHub,
     logout,
     isAuthenticated,
     requireAuth,

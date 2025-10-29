@@ -4,6 +4,7 @@ import EventCard from "../../../components/EventCard";
 import { IEventRead } from "@/types/IEvents";
 import { useFirebase } from "@/services/database/FirebaseContext";
 import Filter from "@/components/Filter";
+import ActiveFilters from "@/components/ActiveFilters";
 import { useSearchParams } from "next/navigation";
 function EventsPage() {
   const { getEvents } = useFirebase();
@@ -39,6 +40,10 @@ function EventsPage() {
     <div className="w-full p-8 flex justify-center items-center flex-col gap-4">
       <div className="flex w-full h-full items-center justify-between mb-8">
         <Filter />
+      </div>
+
+      <div className="w-full max-w-7xl">
+        <ActiveFilters />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full max-w-7xl">

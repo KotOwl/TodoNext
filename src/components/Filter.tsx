@@ -14,13 +14,14 @@ import NameFilter from "./NameFilter";
 import { EventType } from "@/types/IEvents";
 import TypeButtons from "./TypeButtons";
 import { useRouter } from "next/navigation";
+import ActiveFilters from "./ActiveFilters";
 
 export default function Filter() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const router = useRouter()
+  const router = useRouter();
   const handleResetFilters = () => {
     router.replace("/events");
-  }
+  };
   return (
     <div className="flex aitems-center w-full h-full gap-4">
       <Button
@@ -44,6 +45,7 @@ export default function Filter() {
                 <h2 className="text-xl font-bold text-purple-800">
                   Event Filters
                 </h2>
+                <ActiveFilters />
                 <DataPicker />
                 <p className="text-sm text-purple-600">
                   Choose dates and other parameters
